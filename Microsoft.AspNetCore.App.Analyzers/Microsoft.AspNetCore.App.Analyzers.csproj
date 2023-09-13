@@ -9,11 +9,14 @@
     <DelaySign>True</DelaySign>
     <Version>8.0.0</Version>
     <RootNamespace>Microsoft.AspNetCore.Analyzers</RootNamespace>
-    <!--<DefineConstants>$(DefineConstants);INTERNAL_NULLABLE_ATTRIBUTES</DefineConstants>-->
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.CodeAnalysis.ExternalAccess.AspNetCore\Microsoft.CodeAnalysis.ExternalAccess.AspNetCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom" Version="161.8905.0" />
   </ItemGroup>
 
   <ItemGroup>

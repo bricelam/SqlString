@@ -1,11 +1,14 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.AspNetCore.Analyzers.Infrastructure.EmbeddedSyntax;
-using Microsoft.AspNetCore.Analyzers.Infrastructure.VirtualChars;
 using Microsoft.CodeAnalysis;
+using Microsoft.AspNetCore.Analyzers.Infrastructure.VirtualChars;
 using Microsoft.CodeAnalysis.Text;
 
 namespace Microsoft.AspNetCore.Analyzers.Infrastructure.RoutePattern;
@@ -29,7 +32,7 @@ internal partial struct RoutePatternParser
     }
 
     /// <summary>
-    /// Returns the latest token the lexer has produced, and then asks the lexer to
+    /// Returns the latest token the lexer has produced, and then asks the lexer to 
     /// produce the next token after that.
     /// </summary>
     private RoutePatternToken ConsumeCurrentToken()
@@ -40,8 +43,8 @@ internal partial struct RoutePatternParser
     }
 
     /// <summary>
-    /// Given an input text, and set of options, parses out a fully representative syntax tree
-    /// and list of diagnostics.  Parsing should always succeed, except in the case of the stack
+    /// Given an input text, and set of options, parses out a fully representative syntax tree 
+    /// and list of diagnostics.  Parsing should always succeed, except in the case of the stack 
     /// overflowing.
     /// </summary>
     public static RoutePatternTree? TryParse(VirtualCharSequence text, RoutePatternOptions routePatternOptions)

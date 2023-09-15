@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.CodeAnalysis.ExternalAccess.AspNetCore", "Microsoft.CodeAnalysis.ExternalAccess.AspNetCore\Microsoft.CodeAnalysis.ExternalAccess.AspNetCore.csproj", "{EA4E8385-A3F1-478C-ADBD-C91E980029AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.App.Analyzers", "Microsoft.AspNetCore.App.Analyzers\Microsoft.AspNetCore.App.Analyzers.csproj", "{036A92EC-6538-411B-8066-EA475A6C5F9B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.App.Analyzers", "Microsoft.AspNetCore.App.Analyzers\Microsoft.AspNetCore.App.Analyzers.csproj", "{036A92EC-6538-411B-8066-EA475A6C5F9B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

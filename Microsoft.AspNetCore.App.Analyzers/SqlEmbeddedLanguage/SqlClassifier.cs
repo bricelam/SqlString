@@ -13,8 +13,6 @@ internal class SqlClassifier : IAspNetCoreEmbeddedLanguageClassifier
 {
     public void RegisterClassifications(AspNetCoreEmbeddedLanguageClassificationContext context)
     {
-        Debugger.Launch();
-
         AppDomain.CurrentDomain.AssemblyResolve += HandleAssemblyResolve;
         try
         {
@@ -28,7 +26,8 @@ internal class SqlClassifier : IAspNetCoreEmbeddedLanguageClassifier
         static Assembly? HandleAssemblyResolve(object? sender, ResolveEventArgs args)
         {
             if (new AssemblyName(args.Name).Name == "Microsoft.SqlServer.TransactSql.ScriptDom")
-                return Assembly.LoadFrom(@"C:\Users\brice\.nuget\packages\microsoft.sqlserver.transactsql.scriptdom\161.8905.0\lib\net6.0\Microsoft.SqlServer.TransactSql.ScriptDom.dll");
+                return Assembly.LoadFrom(
+                    Environment.ExpandEnvironmentVariables(@"%USERPROFILE%\.nuget\packages\microsoft.sqlserver.transactsql.scriptdom\161.8905.0\lib\net6.0\Microsoft.SqlServer.TransactSql.ScriptDom.dll"));
 
             return null;
         }
@@ -40,23 +39,23 @@ internal class SqlClassifier : IAspNetCoreEmbeddedLanguageClassifier
 
         using var reader = new StringReader(context.SyntaxToken.ValueText);
 
-        //var root = parser.Parse(reader, out var errors);
-        //root.Accept(new ClassifyingVisitor(context));
-
         var tokens = parser.GetTokenStream(reader, out var errors);
         foreach (var token in tokens)
         {
+            var classification = GetClassificationType(token);
+            if (classification is null) continue;
+
             context.AddClassification(
-                GetClassificationType(token),
-                new(context.SyntaxToken.SpanStart + 1 + token.Offset, token.Text?.Length ?? 0));
+                classification,
+                // TODO: Handle other kinds of string literals
+                new(context.SyntaxToken.SpanStart + 2 + token.Offset, token.Text?.Length ?? 0));
         }
     }
 
-    static string GetClassificationType(TSqlParserToken token)
+    static string? GetClassificationType(TSqlParserToken token)
         => token.IsKeyword()
             ? token.TokenType switch
             {
-                // TODO: Try, Catch, Throw
                 TSqlTokenType.Break or
                 TSqlTokenType.Continue or
                 TSqlTokenType.Else or
@@ -71,26 +70,21 @@ internal class SqlClassifier : IAspNetCoreEmbeddedLanguageClassifier
             }
             : token.TokenType switch
             {
-                // Punctuations
-                TSqlTokenType.AddEquals or // Op
+                TSqlTokenType.AddEquals or
                 TSqlTokenType.Ampersand or
                 TSqlTokenType.Bang or
-                TSqlTokenType.BitwiseAndEquals or // Op
-                TSqlTokenType.BitwiseOrEquals or // Op
-                TSqlTokenType.BitwiseXorEquals or // Op
+                TSqlTokenType.BitwiseAndEquals or
+                TSqlTokenType.BitwiseOrEquals or
+                TSqlTokenType.BitwiseXorEquals or
                 TSqlTokenType.Circumflex or
-                TSqlTokenType.Colon or
-                TSqlTokenType.Comma or
-                TSqlTokenType.Concat or // Op
-                TSqlTokenType.ConcatEquals or // Op
-                TSqlTokenType.Divide or // Op
+                TSqlTokenType.Concat or
+                TSqlTokenType.ConcatEquals or
+                TSqlTokenType.Divide or
                 TSqlTokenType.DivideEquals or
                 TSqlTokenType.Dot or
                 TSqlTokenType.DoubleColon or
-                TSqlTokenType.EqualsSign or // Op when assignment
+                TSqlTokenType.EqualsSign or
                 TSqlTokenType.GreaterThan or
-                TSqlTokenType.LeftCurly or
-                TSqlTokenType.LeftParenthesis or
                 TSqlTokenType.LeftShift or
                 TSqlTokenType.LessThan or
                 TSqlTokenType.Minus or
@@ -98,48 +92,61 @@ internal class SqlClassifier : IAspNetCoreEmbeddedLanguageClassifier
                 TSqlTokenType.MultiplyEquals or
                 TSqlTokenType.PercentSign or
                 TSqlTokenType.Plus or
-                TSqlTokenType.RightCurly or
                 TSqlTokenType.RightOuterJoin or
-                TSqlTokenType.RightParenthesis or
                 TSqlTokenType.RightShift or
-                TSqlTokenType.Semicolon or
                 TSqlTokenType.Star or
                 TSqlTokenType.SubtractEquals or
                 TSqlTokenType.Tilde or
                 TSqlTokenType.VerticalLine
-                    // TODO: Operator vs Punctuation
                     => ClassificationTypeNames.Operator,
 
-                // Complex tokens
+                TSqlTokenType.Colon or
+                TSqlTokenType.Comma or
+                TSqlTokenType.LeftCurly or
+                TSqlTokenType.LeftParenthesis or
+                TSqlTokenType.RightCurly or
+                TSqlTokenType.RightParenthesis or
+                TSqlTokenType.Semicolon
+                    => ClassificationTypeNames.Punctuation,
+
                 TSqlTokenType.AsciiStringLiteral or
-                TSqlTokenType.AsciiStringOrQuotedIdentifier or
-                TSqlTokenType.DollarPartition or
-                TSqlTokenType.Go or
-                TSqlTokenType.HexLiteral or
-                TSqlTokenType.Identifier or
-                TSqlTokenType.Integer or
-                TSqlTokenType.Label or
-                TSqlTokenType.Money or
-                TSqlTokenType.Numeric or
-                TSqlTokenType.OdbcInitiator or
-                TSqlTokenType.ProcNameSemicolon or
-                TSqlTokenType.PseudoColumn or
-                TSqlTokenType.QuotedIdentifier or
-                TSqlTokenType.Real or
-                TSqlTokenType.SqlCommandIdentifier or
-                TSqlTokenType.UnicodeStringLiteral or
-                TSqlTokenType.Variable
-                    // TODO: Classify better
+                TSqlTokenType.UnicodeStringLiteral
                     => ClassificationTypeNames.StringLiteral,
 
-                // Comments
+                TSqlTokenType.AsciiStringOrQuotedIdentifier or
+                TSqlTokenType.QuotedIdentifier or
+                TSqlTokenType.Identifier or
+                TSqlTokenType.Variable
+                    => ClassificationTypeNames.Identifier,
+
+                TSqlTokenType.Go
+                    => ClassificationTypeNames.PreprocessorKeyword,
+
+                TSqlTokenType.HexLiteral or
+                TSqlTokenType.Integer or
+                TSqlTokenType.Money or
+                TSqlTokenType.Numeric or
+                TSqlTokenType.Real
+                    => ClassificationTypeNames.NumericLiteral,
+
+                TSqlTokenType.Label
+                    => ClassificationTypeNames.LabelName,
+
                 TSqlTokenType.MultilineComment or
                 TSqlTokenType.SingleLineComment
                     => ClassificationTypeNames.Comment,
 
                 TSqlTokenType.WhiteSpace or
                 TSqlTokenType.EndOfFile
-                    => ClassificationTypeNames.WhiteSpace,
+                    => null,
+
+                // TODO: Classify these
+                TSqlTokenType.DollarPartition or
+                TSqlTokenType.OdbcInitiator or
+                TSqlTokenType.ProcNameSemicolon or
+                TSqlTokenType.PseudoColumn or
+                TSqlTokenType.SqlCommandIdentifier
+                    => null,
 
                 _
                     => throw new UnreachableException("Unexpected token type: " + token.TokenType),

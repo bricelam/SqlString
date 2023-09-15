@@ -2,7 +2,7 @@
 
 ![Screenshot](.github/Screenshot.png)
 
-This is a prototype for adding syntax highlighting to SQL inside of C# strings. It leverages internal extensibility points of Roslyn by forking [parts of Roslyn](https://github.com/dotnet/roslyn/tree/44555193fd1135b5d53a2099f76fec91e0d1ebde/src/Tools/ExternalAccess/AspNetCore) and [parts of ASP.NET Core](https://github.com/dotnet/aspnetcore/tree/v8.0.0-rc.1.23421.29/src/Framework/AspNetCoreAnalyzers/src/Analyzers)--their route pattern syntax highlighting. It uses the [SQL ScriptDOM](https://github.com/microsoft/SqlScriptDOM) library for parsing SQL.
+This is a prototype for adding syntax highlighting to SQL inside of C# strings. It leverages internal extensibility points of Roslyn by forking [parts of Roslyn](https://github.com/dotnet/roslyn/tree/44555193fd1135b5d53a2099f76fec91e0d1ebde/src/Tools/ExternalAccess/AspNetCore) and [parts of ASP.NET Core](https://github.com/dotnet/aspnetcore/tree/v8.0.0-rc.1.23421.29/src/Framework/AspNetCoreAnalyzers/src/Analyzers)--their route pattern syntax highlighting. It uses the [SQL ScriptDOM](https://github.com/microsoft/SqlScriptDOM) library for parsing SQL. The code is inside [SqlClassifier.cs](Microsoft.AspNetCore.App.Analyzers/SqlEmbeddedLanguage/SqlClassifier.cs).
 
 ## Testing
 
